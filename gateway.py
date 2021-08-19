@@ -1,83 +1,64 @@
 '''
 Author: your name
 Date: 2021-08-16 14:47:17
-LastEditTime: 2021-08-17 13:51:42
+LastEditTime: 2021-08-19 17:24:49
 LastEditors: Please set LastEditors
 Description: In User Settings Edit
 FilePath: \MQTT\coapTest\gateway.py
 '''
-
+import threading
 import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 from coapthon.client.helperclient import HelperClient
-import threading
 from coapthon.server.coap import CoAP
-from coapthon.resources.resource import Resource
-from coapthon.messages.response import Response
-from coapthon import defines
-client = mqtt.Client()
+from device import DeviceClient,DevicServer
 
-class AdvancedResource(Resource):
-    def __init__(self, name="Advanced"):
-        super(AdvancedResource, self).__init__(name)
-        self.payload = "Advanced resource"
-    
-    def render_GET_advanced(self, request, response):
-        response.payload = self.payload
-        response.max_age = 20
-        response.code = defines.Codes.CONTENT.number
-        return self, response
+class MqttClient:
+    def __init__(self,host,port):
+        self.mqttClient = mqtt.Client()
+        self.mqttHost = host
+        self.mqttPort = port
+        self.topic = 'topic'
+    def tls_set(self,ca,pem,key):
+        self.mqttClient.tls_set(ca, pem, key)
+    def on_message(self,client, userdata, msg):
+        print(msg.topic+" "+str(msg.payload))
+    def connect(self,keepalive = 60,properties = None):
+        self.mqttClient.on_connect = self.on_connect
+        self.mqttClient.on_message = self.on_message
+        self.mqttClient.connect(self.mqttHost,self.mqttPort,keepalive,properties = properties)
+    def subscribe(self,topic):
+        self.topic = topic
+    def publish(self,topic, payload=None, qos=0, retain=False, properties=None):
+        self.mqttClient.publish(topic, payload, qos, retain, properties)
+    def loop_forever(self):
+        self.mqttClient.loop_forever()
 
-    def render_POST_advanced(self, request, response):
-        print(request.payload)
-        self.payload = request.payload
-        assert(isinstance(response, Response))
-        response.payload = "Response changed through POST"
-        response.code = defines.Codes.CREATED.number
-        return self, response
+    def on_connect(self,client, userdata, flags, rc):
+        print("Connected with result code "+str(rc))
+        self.mqttClient.subscribe(self.topic)
 
-    def render_PUT_advanced(self, request, response):
-        print(request.uri_path,request.payload)
-        client.publish(request.uri_path,request.payload)
-        self.payload = request.payload
-        assert(isinstance(response, Response))
-        response.payload = "Response changed through PUT"
-        response.code = defines.Codes.CHANGED.number
-        return self, response
-
-    def render_DELETE_advanced(self, request, response):
-        response.payload = "Response deleted"
-        response.code = defines.Codes.DELETED.number
-        return True, response
-
-class CoAPServer(CoAP):
-    def __init__(self, host, port):
-        CoAP.__init__(self,(host, port))
-        self.add_resource('Temperature', AdvancedResource())
-        self.add_resource('TemperatureController', AdvancedResource())
+class Gateway(MqttClient,DeviceClient,DevicServer):
+    def __init__(self,mqttHost,mqttPort,coapClientHost,coapClientPort,coapServerHost,coapServerPort):
         
-def server(Host,Port):
-    print("CoAPServer IP addr : %s port : %d "%(Host,Port))
-    server = CoAPServer(Host,Port)
-    try:
-        server.listen(10)
-    except KeyboardInterrupt:
-        print("Server Shutdown")
-        server.close()
-        print("Exiting...")
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-    client.subscribe('TemperatureController')
-def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload))
-    coapClient = HelperClient(server=("127.0.0.1", 5683))  #coap传递到的服务端的ip和端口
-    response = coapClient.put(msg.topic,str(msg.payload))
+        MqttClient.__init__(self, mqttHost, mqttPort)
+        DeviceClient.__init__(self,coapClientHost,coapClientPort)
+        DevicServer.__init__(self,coapServerHost,coapServerPort)
 
+    def onPut(self,request):
+        self.publish(request.uri_path,request.payload)
+    def on_message(self,client, userdata, msg):
+        self.put(str(msg.topic),str(msg.payload))
+if __name__ == '__main__':
+    g = Gateway('192.168.11.130', 1883, '127.0.0.1', 5684, '127.0.0.1', 5683)
+    g.connectServer()
+    g.setServer()
+    g.add_resource('Temperature')
+    g.add_resource('TemperatureController')
+    g.serverStart()
 
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect("192.168.11.130", 1883, 60)     #mqtt代理所在的ip和端口
-threading.Thread(target = server,args=("127.0.0.1", 5684)).start()    #本程序所打开的coap服务端的ip和端口
-threading.Thread(target = client.loop_forever()).start()
-
-
+    g.subscribe("TemperatureController")
+    g.connect()
+    g.loop_forever()
+    
+    

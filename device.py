@@ -1,12 +1,9 @@
 '''
 Author: your name
 Date: 2021-08-17 11:05:00
-LastEditTime: 2021-08-19 11:31:59
+LastEditTime: 2021-08-19 17:25:50
 LastEditors: Please set LastEditors
 Description: 
-iot设备中运行的程序，假设为一台空调，需要满足以下功能：
--传递温度
--远程控制开关机和温度
 FilePath: \coapTest\device.py
 '''
 from coapserver import server
@@ -17,14 +14,14 @@ from coapserver import AdvancedResource,CoAPServer
 
 class DeviceClient:
     def __init__(self,addr = '127.0.0.1',port = 5683):
-        self.addr = addr
-        self.port = port
-        self.loopThreads = list()
-    def setSocket(self,addr,port):
-        self.addr=addr
-        self.port=port
+        self.addrClient = addr
+        self.portClient = port
+        self.clientloopThreads = list()
+    def setClientSocket(self,addr,port):
+        self.addrClient=addr
+        self.portClient=port
     def connectServer(self):
-        self.coapClient = HelperClient(server=(self.addr, self.port))
+        self.coapClient = HelperClient(server=(self.addrClient, self.portClient))
     def put(self,uri,payload):
         response = self.coapClient.put(uri,payload)
         return response
@@ -39,16 +36,16 @@ class DeviceClient:
         return response
     def putLoop(self,uri,payload,loopTime):
         def helper():
-            while True and uri in self.loopThreads:
+            while True and uri in self.clientloopThreads:
                 self.put(uri,payload)
                 time.sleep(loopTime)
         
-        self.loopThreads.append(uri)
+        self.clientloopThreads.append(uri)
         threading.Thread(name=uri,target=helper).start()
     def stopLoop(self,uri):
-        for t in self.loopThreads:
+        for t in self.clientloopThreads:
             if t == uri:
-                self.loopThreads.remove(t)
+                self.clientloopThreads.remove(t)
 
     def disconnect(self):
         self.coapClient.stop()
@@ -56,16 +53,16 @@ class DeviceClient:
 class DevicServer:
     def __init__(self,addr='127.0.0.1',port = 5683):
         self.deviceResource = AdvancedResource('DevicServer')
-        #overwriter
+        self.addrServer = addr
+        self.portServer = port
+        self.server = None
+
+    def setServer(self):
         self.deviceResource.onGet = self.onGet
         self.deviceResource.onPut = self.onPut
         self.deviceResource.onPost = self.onPost
         self.deviceResource.onDelete = self.onDelete
-        self.addr = addr
-        self.port = port
-        self.server = None
-    def setServer(self):
-        self.server = CoAPServer(self.addr,self.port)
+        self.server = CoAPServer(self.addrServer,self.portServer)
     def add_resource(self,uri_path):
         if self.server:
             self.server.add_resource(uri_path,self.deviceResource)
@@ -85,35 +82,28 @@ class DevicServer:
 
     def setPayload(self,payload):
         self.deviceResource.payload = payload
-
     def setSocket(self,addr,port):
         self.addr = addr
         self.port = port
-    def setOnGet(self,func):
-        self.deviceResource.onGet = func
-    def setOnPut(self,func):
-        self.deviceResource.onPut = func
-    def setOnPost(self,func):
-        self.deviceResource.onPost = func
-    def setOnDelete(self,func):
-        self.deviceResource.onDelete = func
-    def onGet(self,request):
+    def onGet(AdvancedResource,request):
         pass
-    def onPut(self,request):
+    def onPut(AdvancedResource,request):
         print(request.uri_path,request.payload)
-    def onPost(self,request):
+    def onPost(AdvancedResource,request):
         print(request.uri_path,request.payload)
-    def onDelete(self,request):
+    def onDelete(AdvancedResource,request):
         pass
+class Device(DeviceClient,DevicServer):
+    def __init__(self,serverAddr='127.0.0.1',serverPort = 5683,clientAddr = '127.0.0.1',clientPort = 5683):
+        DeviceClient.__init__(self,clientAddr,clientPort)
+        DevicServer.__init__(self,serverAddr,serverPort)
 
 if __name__=='__main__':
 
-    c = DeviceClient()
-    c.connectServer()
-    c.putLoop('Temperature', '27', 5)
+    d = Device(serverPort=5684)
+    d.connectServer()
+    d.putLoop('Temperature', '27', 5)
 
-
-    s = DevicServer(port = 5684)
-    s.setServer()
-    s.add_resource('Temperature')
-    s.serverStart()
+    d.setServer()
+    d.add_resource('Temperature')
+    d.serverStart()
