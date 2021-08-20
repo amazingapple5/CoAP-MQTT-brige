@@ -1,10 +1,10 @@
 '''
-Author: your name
-Date: 2021-08-12 16:30:25
-LastEditTime: 2021-08-19 15:42:36
+Author: lenzo
+Date: 2021-08-19 09:34:37
+LastEditTime: 2021-08-20 09:31:58
 LastEditors: Please set LastEditors
-Description: In User Settings Edit
-FilePath: \MQTT\coapserver.py
+Description: coap服务端的基础类
+FilePath: \CoAP-MQTT-brige\coapserver.py
 '''
 from coapthon.server.coap import CoAP
 from coapthon.resources.resource import Resource

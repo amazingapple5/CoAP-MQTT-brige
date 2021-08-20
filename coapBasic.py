@@ -1,9 +1,9 @@
 '''
-Author: your name
+Author: lenzo
 Date: 2021-08-20 09:23:51
-LastEditTime: 2021-08-20 09:27:37
+LastEditTime: 2021-08-20 09:31:08
 LastEditors: Please set LastEditors
-Description: In User Settings Edit
+Description: coap客户端、服务端的基本类
 FilePath: \CoAP-MQTT-brige\coapBasic.py
 '''
 import time

@@ -1,10 +1,10 @@
 '''
-Author: your name
-Date: 2021-08-16 14:47:17
-LastEditTime: 2021-08-20 09:26:29
+Author: lenzo 
+Date: 2021-08-19 09:34:37
+LastEditTime: 2021-08-20 09:32:40
 LastEditors: Please set LastEditors
-Description: In User Settings Edit
-FilePath: \MQTT\coapTest\gateway.py
+Description: gateway部分
+FilePath: \CoAP-MQTT-brige\gateway.py
 '''
 import threading
 import paho.mqtt.client as mqtt

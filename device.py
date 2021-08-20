@@ -1,10 +1,10 @@
 '''
-Author: your name
-Date: 2021-08-17 11:05:00
-LastEditTime: 2021-08-20 09:27:34
+Author: lenzo
+Date: 2021-08-19 09:34:37
+LastEditTime: 2021-08-20 09:32:25
 LastEditors: Please set LastEditors
-Description: 
-FilePath: \coapTest\device.py
+Description: device部分
+FilePath: \CoAP-MQTT-brige\device.py
 '''
 from coapserver import server
 from coapBasic import CoapBasicServer,CoapbasicClient

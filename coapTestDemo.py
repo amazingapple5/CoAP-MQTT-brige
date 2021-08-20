@@ -1,10 +1,10 @@
 '''
-Author: your name
-Date: 2021-08-12 16:31:05
-LastEditTime: 2021-08-19 16:49:26
+Author: lenzo
+Date: 2021-08-19 17:27:03
+LastEditTime: 2021-08-20 09:32:12
 LastEditors: Please set LastEditors
-Description: In User Settings Edit
-FilePath: \coapTestDemo.py
+Description: coap调试小工具
+FilePath: \CoAP-MQTT-brige\coapTestDemo.py
 '''
 import time
 from coapthon.client.helperclient import HelperClient
