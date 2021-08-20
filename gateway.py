@@ -1,7 +1,7 @@
 '''
 Author: your name
 Date: 2021-08-16 14:47:17
-LastEditTime: 2021-08-19 17:24:49
+LastEditTime: 2021-08-20 09:26:29
 LastEditors: Please set LastEditors
 Description: In User Settings Edit
 FilePath: \MQTT\coapTest\gateway.py
@@ -11,7 +11,7 @@ import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 from coapthon.client.helperclient import HelperClient
 from coapthon.server.coap import CoAP
-from device import DeviceClient,DevicServer
+from coapBasic import CoapbasicClient,CoapBasicServer
 
 class MqttClient:
     def __init__(self,host,port):
@@ -38,12 +38,12 @@ class MqttClient:
         print("Connected with result code "+str(rc))
         self.mqttClient.subscribe(self.topic)
 
-class Gateway(MqttClient,DeviceClient,DevicServer):
+class Gateway(MqttClient,CoapbasicClient,CoapBasicServer):
     def __init__(self,mqttHost,mqttPort,coapClientHost,coapClientPort,coapServerHost,coapServerPort):
         
         MqttClient.__init__(self, mqttHost, mqttPort)
-        DeviceClient.__init__(self,coapClientHost,coapClientPort)
-        DevicServer.__init__(self,coapServerHost,coapServerPort)
+        CoapbasicClient.__init__(self,coapClientHost,coapClientPort)
+        CoapBasicServer.__init__(self,coapServerHost,coapServerPort)
 
     def onPut(self,request):
         self.publish(request.uri_path,request.payload)
