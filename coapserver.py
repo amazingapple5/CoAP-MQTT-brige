@@ -1,7 +1,7 @@
 '''
 Author: lenzo
 Date: 2021-08-19 09:34:37
-LastEditTime: 2021-08-20 10:10:22
+LastEditTime: 2021-08-20 10:20:17
 LastEditors: Please set LastEditors
 Description: coap服务端的基础类
 FilePath: \CoAP-MQTT-brige\coapserver.py
