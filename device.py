@@ -1,7 +1,7 @@
 '''
 Author: lenzo
 Date: 2021-08-19 09:34:37
-LastEditTime: 2021-08-20 09:32:25
+LastEditTime: 2021-08-20 10:11:06
 LastEditors: Please set LastEditors
 Description: device部分
 FilePath: \CoAP-MQTT-brige\device.py
@@ -21,5 +21,5 @@ if __name__=='__main__':
     d.putLoop('Temperature', '27', 5)
 
     d.setServer()
-    d.add_resource('Temperature')
+    d.add_resource('TemperatureController')
     d.serverStart()

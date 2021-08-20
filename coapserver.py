@@ -1,7 +1,7 @@
 '''
 Author: lenzo
 Date: 2021-08-19 09:34:37
-LastEditTime: 2021-08-20 09:31:58
+LastEditTime: 2021-08-20 10:10:22
 LastEditors: Please set LastEditors
 Description: coap服务端的基础类
 FilePath: \CoAP-MQTT-brige\coapserver.py
@@ -11,7 +11,7 @@ from coapthon.resources.resource import Resource
 from coapthon.messages.response import Response
 from coapthon import defines
 Host = "127.0.0.1"  		
-Port = 5683             
+Port = 5684             
 
 class AdvancedResource(Resource):
     def __init__(self, name="Advanced"):
@@ -51,7 +51,7 @@ class AdvancedResource(Resource):
     def onGet(self,request):
         pass
     def onPut(self,request):
-        pass
+        print(request.uri_path,request.payload)
     def onPost(self,request):
         pass
     def onDelete(self,request):
@@ -61,7 +61,7 @@ class CoAPServer(CoAP):
     def __init__(self, host, port):
         CoAP.__init__(self,(host, port))
         #self.add_resource('Temperature', AdvancedResource())
-        #self.add_resource('TemperatureController', AdvancedResource())
+        self.add_resource('TemperatureController', AdvancedResource())
 
 def server(Host,Port):
     print("CoAPServer IP addr : %s port : %d "%(Host,Port))

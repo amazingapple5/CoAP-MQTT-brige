@@ -1,7 +1,7 @@
 '''
 Author: lenzo
 Date: 2021-08-20 09:23:51
-LastEditTime: 2021-08-20 09:31:08
+LastEditTime: 2021-08-20 10:10:54
 LastEditors: Please set LastEditors
 Description: coap客户端、服务端的基本类
 FilePath: \CoAP-MQTT-brige\coapBasic.py
@@ -21,6 +21,7 @@ class CoapbasicClient:
     def connectServer(self):
         self.coapClient = HelperClient(server=(self.addrClient, self.portClient))
     def put(self,uri,payload):
+        print(uri,payload)
         response = self.coapClient.put(uri,payload)
         return response
     def post(self,uri,payload):
@@ -83,11 +84,11 @@ class CoapBasicServer:
     def setSocket(self,addr,port):
         self.addr = addr
         self.port = port
-    def onGet(AdvancedResource,request):
+    def onGet(self,request):
         pass
-    def onPut(AdvancedResource,request):
-        print(request.uri_path,request.payload)
-    def onPost(AdvancedResource,request):
-        print(request.uri_path,request.payload)
-    def onDelete(AdvancedResource,request):
+    def onPut(self,request):
+        pass
+    def onPost(self,request):
+        pass
+    def onDelete(self,request):
         pass
